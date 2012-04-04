@@ -12,16 +12,18 @@ valid_corpus <- lapply(1:numberOfEssaySet,function(k)
                        Corpus(VectorSource(with(valid_set,essay[essay_set==k]))))
 train_score <- NULL
 for(k in c(1,3,4,5,6)){
-  train_score[[k]] <- data.frame(rubric=with(train_set,domain1_score[essay_set==1]))
+  train_score[[k]] <- data.frame(rubric=with(train_set,domain1_score[essay_set==k]))
 }
 rm(k)
 
 train_score[[2]] <- with(train_set,data.frame(rubric1=domain1_score[essay_set==2],rubric2=domain2_score[essay_set==2]))
+### sum of 4 traits are final score
 train_score[[7]] <- with(train_set[train_set$essay_set==7,-3],
                          data.frame(Ideas=rater1_trait1+rater2_trait1,
                                     Organization=rater1_trait2+rater2_trait2,
                                     Style=rater1_trait3+rater2_trait3,
                                     Conventions=rater1_trait4+rater2_trait4))
+### IdeasAndContent+Organization+SentenceFluency+2*Conventions is final score
 train_score[[8]] <- with(train_set[train_set$essay_set==8,-3],
                          local({
                            result <- matrix(0,nrow=length(rater1_trait1),ncol=4)
@@ -34,3 +36,5 @@ train_score[[8]] <- with(train_set[train_set$essay_set==8,-3],
                            names(result) <- c("IdeasAndContent","Organization","SentenceFluency","Conventions")
                            result
                          }))
+
+rm(train_set,valid_set)

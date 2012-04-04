@@ -1,0 +1,4 @@
+Data File
+     Data of train essay of id 10534 is messed up.Fix it in training_set_rel3.xlsx.
+     Use libreoffice to convert xlsx to csv.
+     Read gzipped csv file in R.

@@ -20,3 +20,5 @@ name <- deparse(substitute(object))
 object <- get(name)
 #R remote search
 RSiteSearch(string)
+#with,within,transform,attach
+CHS <- with(CHS, bmi = weight/heightˆ2)

@@ -14,3 +14,11 @@ misspelledWords <- function(txt){
   spellDoc(txt,function (word,...) words <<- c(words,word))
   words
 }
+extract.simpleFeatrure <- function(corpus){
+  result <- NULL
+  result$Nword <- wordNumber(corpus)
+  result$NwordRoot4 <- result$Nword^(1/4)
+  result$Nchar <- characterNumber(corpus)
+  result$NcharAvg <- with(result,Nchar/Nword)
+  as.data.frame(result)
+}

@@ -22,3 +22,7 @@ object <- get(name)
 RSiteSearch(string)
 #with,within,transform,attach
 CHS <- with(CHS, bmi = weight/heightˆ2)
+#Note "drop" parameter of "[.data.frame"
+x <- data.frame(x=1:10)
+x[1:5,]
+x[1:5,,drop=FALSE]

@@ -14,6 +14,10 @@ misspelledWords <- function(txt){
   spellDoc(txt,function (word,...) words <<- c(words,word))
   words
 }
+sentenceNumber <- function(txt){
+  require('openNLP')
+  length(sentDetect(txt))
+}
 extract.simpleFeatrure <- function(corpus){
   result <- NULL
   result$Nword <- wordNumber(corpus)
@@ -21,5 +25,7 @@ extract.simpleFeatrure <- function(corpus){
   result$Nchar <- characterNumber(corpus)
   result$NcharAvg <- with(result,Nchar/Nword)
   result$Nmisspell <- sapply(corpus,misspelledNumber)
+  result$Nsent <- sapply(corpus,sentenceNumber)
+  result$SentLen <-  with(result,Nword/Nsent)
   as.data.frame(result)
 }

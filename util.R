@@ -13,7 +13,7 @@ splitAndSave.set <- function(k,method="random",rho=0.75){
     valid_corpus <- train_corpus[-index]
     train_corpus <- train_corpus[index]
     valid_score <- train_score[-index,]
-    train_score <- train_score[-index,]
+    train_score <- train_score[index,]
     save(train_corpus,train_score,valid_corpus,valid_score,index,
          file=file)
   })

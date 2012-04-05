@@ -22,6 +22,7 @@ Set[[7]]$Y1 <- with(train_set[train_set$essay_set==7,-3],
                                     Organization=rater1_trait2+rater2_trait2,
                                     Style=rater1_trait3+rater2_trait3,
                                     Conventions=rater1_trait4+rater2_trait4))
+Set[[7]]$resolve_coef <- rep(1,4)
 ### IdeasAndContent+Organization+SentenceFluency+2*Conventions is final score
 Set[[8]]$Y1 <- with(train_set[train_set$essay_set==8,-3],
                          local({
@@ -35,6 +36,7 @@ Set[[8]]$Y1 <- with(train_set[train_set$essay_set==8,-3],
                            names(result) <- c("IdeasAndContent","Organization","SentenceFluency","Conventions")
                            result
                          }))
+Set[[8]]$resolve_coef <- c(1,1,1,2)
 
 Set[[1]]$Yrange <- data.frame(rubric=c(2,12),row.names=c("min","max"))
 Set[[2]]$Yrange <- data.frame(rubric1=c(1,6),rubric2=c(1,4),row.names=c("min","max"))
@@ -51,4 +53,4 @@ Set[[8]]$Yrange$Resolved <- c(10,60) #Description says 0-60
 
 source('data.R')
 lapply(1:numberOfEssaySet,splitAndSave.set)
-save.image(file="orig.Rdata")
+save.image(file="data/orig.Rdata")

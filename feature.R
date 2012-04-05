@@ -20,5 +20,6 @@ extract.simpleFeatrure <- function(corpus){
   result$NwordRoot4 <- result$Nword^(1/4)
   result$Nchar <- characterNumber(corpus)
   result$NcharAvg <- with(result,Nchar/Nword)
+  result$Nmisspell <- sapply(corpus,misspelledNumber)
   as.data.frame(result)
 }

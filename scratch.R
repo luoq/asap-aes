@@ -1,16 +1,16 @@
-ny <- length(Y1)
-feature1 <- extract.simpleFeatrure(corpus1)
-feature2 <- extract.simpleFeatrure(corpus2)
-fit <- lapply(1:ny,function(k) lm(y~.,data=cbind(y=Y1[[k]],feature1)))
-pred1 <- sapply(1:ny,function(k)
-                round.range(fitted.values(fit[[k]]),Yrange[1,k],Yrange[2,k]))
+#ny <- length(Y1)
+#feature1 <- extract.simpleFeatrure(corpus1)
+#feature2 <- extract.simpleFeatrure(corpus2)
+
+fit <- lapply(1:ny,function(k) train(feature1,Y1[[k]],Yrange[[k]],method=METHOD))
+pred1 <- sapply(1:ny,function(k) predict(fit[[k]],feature1))
+pred2 <- sapply(1:ny,function(k) predict(fit[[k]],feature2))
+
 pred1 <- as.data.frame(pred1)
 colnames(pred1) <- colnames(Y1)
-pred2 <- sapply(1:ny,function(k)
-                round.range(predict(fit[[k]],feature2),
-                            Yrange[1,k],Yrange[2,k]))
 pred2 <- as.data.frame(pred2)
 colnames(pred2) <- colnames(Y2)
+
 kappa1 <- sapply(1:ny,function(k)
                  ScoreQuadraticWeightedKappa(pred1[[k]],Y1[[k]],Yrange[1,k],Yrange[2,k]))
 kappa2 <- sapply(1:ny,function(k)

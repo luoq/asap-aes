@@ -1,5 +1,5 @@
 splitAndSave.set <- function(k,method="random",rho=0.75){
-  file <- paste("data/",as.character(k),".RData",sep="")
+  file <- data.file(k)
   data <- within(Set[[k]],{
     essay_set <- k
     Ndoc <- nrow(Y1)

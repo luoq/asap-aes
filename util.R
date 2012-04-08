@@ -20,3 +20,11 @@ switch.set <- function(k){
     load(data.file(k),envir=.GlobalEnv)
   }
 }
+select.step <- function(cv,cv.error){
+  k <- which.min(cv)
+  cv.min <- cv[k]
+  cv.sd <- cv.error[k]
+  for(i in 1:length(cv))
+    if(cv[i]>=cv.min-cv.sd && cv[i]<=cv.min+cv.sd)
+      return(i)
+}

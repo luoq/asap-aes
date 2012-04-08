@@ -19,15 +19,16 @@ train.LM_step <- function(X,y,yrange){
 }
 predict.LM_step <- predict.LM
 train.lasso <- function(X,y,yrange){
-  cv.fit <- cv.lars(as.matrix(X),y,K=5,mode="step")
   fit <- lars(as.matrix(X),y)
-  index <- select.step(cv.fit$cv,cv.fit$cv.error)
+  cv.fit <- cv.lars(as.matrix(X),y,K=5)
+  s <- select.step(cv.fit$cv,cv.fit$cv.error)
+  s <- cv.fit$index[s]
   
-  result <- list(fit=fit,yrange=yrange,index=index)
+  result <- list(fit=fit,yrange=yrange,s=s)
   class(result) <- c("lasso",class(result))
   result
 }
 predict.lasso <- function(model,X){
-  pred <- predict(model$fit,X,s=model$index)$fit
+  pred <- predict(model$fit,X,s=model$s,mode="fraction")$fit
   round.range(pred,model$yrange[1],model$yrange[2])
 }

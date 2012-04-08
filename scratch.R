@@ -1,7 +1,6 @@
 #ny <- length(Y1)
 #feature1 <- extract.simpleFeatrure(corpus1)
 #feature2 <- extract.simpleFeatrure(corpus2)
-#METHOD="LM"
 
 for(name in c("fit","pred1","pred2","kappa1","kappa2"))
   if(!exists(name))

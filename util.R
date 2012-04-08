@@ -28,3 +28,18 @@ select.step <- function(cv,cv.error){
     if(cv[i]>=cv.min-cv.sd && cv[i]<=cv.min+cv.sd)
       return(i)
 }
+
+as.Matrix <- function(X)
+  UseMethod("as.Matrix")
+as.Matrix.DocumentTermMatrix <- function(X){
+  require(Matrix)
+  Y <- spMatrix(nrow=X$nrow,ncol=X$ncol,i=X$i,j=X$j,x=X$v)
+  dimnames(Y) <- list(X$dimnames$Docs,X$dimnames$Terms)
+  return(Y)
+}
+as.dtm <- function(X){
+  Y <- as.simple_triplet_matrix(X)
+  names(dimnames(Y)) <- c("Docs","Terms")
+  class(Y) <- c("DocumentTermMatrix", "simple_triplet_matrix")
+  Y
+}

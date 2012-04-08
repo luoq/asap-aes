@@ -20,9 +20,8 @@ sentenceNumber <- function(txt){
 }
 extract.simpleFeatrure <- function(corpus){
   preprocess_corpus <- function(corpus){
-    corpus <- tm_map(corpus,function(txt) gsub("[/()]"," ",txt))
+    corpus <- tm_map(corpus,function(txt) gsub("[!(),\\./:;?]"," ",txt))
     corpus <- tm_map(corpus,removePunctuation)
-    corpus <- tm_map(corpus,stripWhitespace)
   }
   result <- NULL
   result$Nword <- wordNumber(corpus)
@@ -43,4 +42,22 @@ extract.simpleFeatrure <- function(corpus){
   }
   
   as.data.frame(result)
+}
+get_dtm <- function(corpus,dictionary=NULL){
+  preprocess_corpus <- function(corpus){
+    ## :punct: = [!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]
+    ## these punctuation may be between two words
+    corpus <- tm_map(corpus,function(txt) gsub("[!(),\\./:;?]"," ",txt))
+    ## NOTE:termFreq tokenize before removePunctuation.
+    corpus <- tm_map(corpus,removePunctuation)
+    corpus <- tm_map(corpus,removeNumbers)
+  }
+  corpus <- preprocess_corpus(corpus)
+  if(is.null(dictionary))
+    ctrl <- list(stemming=TRUE,
+                 bounds=list(global=c(4,Inf)))# about half the terms only belong to one document
+  else
+    ctrl <- list(stemming=TRUE,dictionary=dictionary)
+    
+  dtm <- DocumentTermMatrix(corpus,control=ctrl)
 }

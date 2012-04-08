@@ -32,3 +32,17 @@ predict.lasso <- function(model,X){
   pred <- predict(model$fit,X,s=model$s,mode="fraction")$fit
   round.range(pred,model$yrange[1],model$yrange[2])
 }
+train.SVM <- function(X,y,yrange){
+  y.factor <- as.factor(y)
+  require(e1071)
+  model <- svm(X,y.factor,kernel="linear",cost=100)
+  L <- levels(y.factor)
+  
+  result <- list(model=model,levels=L)
+  class(result) <- c("SVM",class(result))
+  result
+}
+predict.SVM <- function(model,X){
+  result <- predict(model$model,X)
+  as.numeric(model$levels[result])
+}

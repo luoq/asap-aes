@@ -38,6 +38,7 @@ as.Matrix.DocumentTermMatrix <- function(X){
   return(Y)
 }
 as.dtm <- function(X){
+  require(slam)
   Y <- as.simple_triplet_matrix(X)
   names(dimnames(Y)) <- c("Docs","Terms")
   class(Y) <- c("DocumentTermMatrix", "simple_triplet_matrix")

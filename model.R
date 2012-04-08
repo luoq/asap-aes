@@ -20,7 +20,7 @@ train.LM_step <- function(X,y,yrange){
 predict.LM_step <- predict.LM
 train.lasso <- function(X,y,yrange){
   fit <- lars(as.matrix(X),y)
-  cv.fit <- cv.lars(as.matrix(X),y,K=5)
+  cv.fit <- cv.lars(as.matrix(X),y,K=5,plot.it=FALSE)
   s <- select.step(cv.fit$cv,cv.fit$cv.error)
   s <- cv.fit$index[s]
   

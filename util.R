@@ -4,6 +4,32 @@ round.range <- function(x,min,max) {
   x[x<min] <- min
   return(x)
 }
+which.kmax <- function(x,k){
+  if(k==1)
+    return(which.max(x))
+  else{
+    res <- rep(0,k)
+    res[1] <- which.max(x)
+    temp <- which.kmax(x[-res[1]],k-1)
+    mask <- temp>=res[1]
+    temp[mask] <- temp[mask]+1
+    res[2:k] <- temp
+    return(res)
+  }
+}
+dim_share <- function(share=0.5){
+  function(x) {
+    s=sum(x)
+    d=0
+    i=1
+    while(d<share){
+      d=d+x[i]/s
+      i=i+1
+    }
+    return(i-1)
+  }
+}
+
 data.file <- function(k)
   paste("data/",as.character(k),".RData",sep="")
 save.set <- function()

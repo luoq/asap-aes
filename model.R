@@ -18,6 +18,35 @@ train.LM_step <- function(X,y,yrange){
   result
 }
 predict.LM_step <- predict.LM
+train.LM_indicator_step <- function(X,y,yrange){
+  cls <- sort(unique(y))
+  fit <- lapply(1:length(cls),function(C){
+    fit <- lm(y~.,data=cbind(y=I(y==C),X))
+    require(MASS)
+    fit <- stepAIC(fit,trace=0)
+  })
+  result <- list(cls=cls,fit=fit)
+  
+  class(result) <- c("LM_indicator_step",class(result))
+  result
+}
+predict.LM_indicator_step <- function(model,X){
+  result <- sapply(model$fit,function(fit){
+    predict(fit,X)})
+  result <- apply(result,1,which.max)
+  result <- model$cls[result]
+}
+train.LDA <- function(X,y,yrange){
+  result <- lda(X,y)
+  
+  result <- list(model=result)
+  class(result) <- c("LDA",class(result))
+  result
+}
+predict.LDA <- function(model,X){
+  result <- predict(model$model,X)$class
+  as.numeric(levels(result)[result])
+}
 train.lasso <- function(X,y,yrange){
   fit <- lars(as.matrix(X),y)
   cv.fit <- cv.lars(as.matrix(X),y,K=5,plot.it=FALSE)
@@ -43,6 +72,7 @@ train.SVM <- function(X,y,yrange){
   result
 }
 predict.SVM <- function(model,X){
+  require(e1071)
   result <- predict(model$model,X)
   as.numeric(model$levels[result])
 }

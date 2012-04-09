@@ -18,6 +18,15 @@ train.LM_step <- function(X,y,yrange){
   result
 }
 predict.LM_step <- predict.LM
+train.LM2_step <- function(X,y,yrange){
+  fit <- lm(y~.^2,data=cbind(y=y,X))
+  require(MASS)
+  fit <- stepAIC(fit,trace=0)
+  result <- list(fit=fit,yrange=yrange)
+  class(result) <- c("LM_step",class(result))
+  result
+}
+predict.LM2_step <- predict.LM
 train.LM_indicator_step <- function(X,y,yrange){
   cls <- sort(unique(y))
   fit <- lapply(1:length(cls),function(C){

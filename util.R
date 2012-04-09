@@ -19,6 +19,10 @@ which.kmax <- function(x,k){
 }
 factor2numeric <- function(F)
   as.numeric(levels(F)[F])
+barplot.compare <- function(a,b){
+  tab <- table(a,b)
+  barplot(tab,col=rainbow(5),legend=rownames(tab))
+}
 normalize <- function(X){
   L <- sqrt(rowSums(X^2))
   X <- Diagonal(x=1/L) %*% X

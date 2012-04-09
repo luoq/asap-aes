@@ -103,3 +103,15 @@ predict.SVM <- function(model,X){
   require(e1071)
   factor2numeric(predict(model$model,X))
 }
+train.randomForest <- function(X,y,yrange){
+  require(randomForest)
+  model <- randomForest(X,as.factor(y))
+
+  result <- list(model=model)
+  class(result) <- c("randomForest_model",class(result))
+  result
+}
+predict.randomForest_model <- function(model,X){
+  require(randomForest)
+  factor2numeric(predict(model$model,X))
+}

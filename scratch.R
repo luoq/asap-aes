@@ -9,8 +9,6 @@
 #space <- build_lsa(apply_weight(M1))
 #U1 <- space$u
 #U2 <- fold_in_lsa(apply_weight(M2),space)
-#U1 <- as.matrix(U1)
-#U2 <- as.matrix(U2)
 
 for(name in c("fit","pred1","pred2","kappa1","kappa2"))
   if(!exists(name))

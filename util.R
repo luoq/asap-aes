@@ -17,6 +17,13 @@ which.kmax <- function(x,k){
     return(res)
   }
 }
+factor2numeric <- function(F)
+  as.numeric(levels(F)[F])
+normalize <- function(X){
+  L <- sqrt(rowSums(X^2))
+  X <- Diagonal(x=1/L) %*% X
+  X
+}
 dim_share <- function(share=0.5){
   function(x) {
     s=sum(x)
@@ -30,22 +37,6 @@ dim_share <- function(share=0.5){
   }
 }
 
-data.file <- function(k)
-  paste("data/",as.character(k),".RData",sep="")
-save.set <- function()
-  save(list=ls.nofunction(),file=data.file(essay_set))
-ls.nofunction <- function() {
-  names <- ls(envir=.GlobalEnv)
-  mask <- sapply(names,function(name) is.function(get(name)))
-  return(names[!mask])
-}
-switch.set <- function(k){
-  if(k!=essay_set){
-    save.set()
-    rm(list=ls.nofunction(),envir=.GlobalEnv)
-    load(data.file(k),envir=.GlobalEnv)
-  }
-}
 select.step <- function(cv,cv.error){
   k <- which.min(cv)
   cv.min <- cv[k]

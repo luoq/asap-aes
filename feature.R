@@ -106,5 +106,5 @@ build_lsa <- function(X,dim_calc=dim_share(0.8)){
 }
 fold_in_lsa <- function(M,space){
   X <- (M %*% space$v) %*% Diagonal(x=1/space$d)
-  X
+  as.matrix(X)
 }

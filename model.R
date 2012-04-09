@@ -47,6 +47,27 @@ predict.LDA <- function(model,X){
   result <- predict(model$model,X)$class
   as.numeric(levels(result)[result])
 }
+train.RWeka <- function(fun){
+  function(X,y,yrange){
+    require(RWeka)
+    model <- get(fun)(y~.,data=cbind(y=as.factor(y),X))
+    result <- list(model=model)
+    class(result) <- c(paste(fun,"_model",sep=""),class(result))
+    result
+  }
+}
+predict.RWeka <- function(model,X){
+  require(RWeka)
+  factor2numeric(predict(model$model,X))
+}
+train.J48 <- train.RWeka("J48")
+predict.J48_model <- predict.RWeka
+train.LMT <- train.RWeka("LMT")
+predict.LMT_model <- predict.RWeka
+train.M5P <- train.RWeka("M5P")
+predict.M5P_model <- predict.RWeka
+train.DecisionStump <- train.RWeka("DecisionStump")
+predict.DecisionStump_model <- predict.RWeka
 train.lasso <- function(X,y,yrange){
   fit <- lars(as.matrix(X),y)
   cv.fit <- cv.lars(as.matrix(X),y,K=5,plot.it=FALSE)
@@ -62,17 +83,14 @@ predict.lasso <- function(model,X){
   round.range(pred,model$yrange[1],model$yrange[2])
 }
 train.SVM <- function(X,y,yrange){
-  y.factor <- as.factor(y)
   require(e1071)
-  model <- svm(X,y.factor,kernel="linear",cost=100)
-  L <- levels(y.factor)
+  model <- svm(X,as.factor(y),kernel="linear",cost=100)
   
-  result <- list(model=model,levels=L)
+  result <- list(model=model)
   class(result) <- c("SVM",class(result))
   result
 }
 predict.SVM <- function(model,X){
   require(e1071)
-  result <- predict(model$model,X)
-  as.numeric(model$levels[result])
+  factor2numeric(predict(model$model,X))
 }

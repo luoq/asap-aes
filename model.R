@@ -131,19 +131,18 @@ predict.randomForest_model <- function(model,X){
 train.naiveBayes <- function(X,y,range){
   y <- as.factor(y)
   prior <- table(y)
-  A <- t(sapply(1:nlevels(y),function(i) y==i)) * 1
-  freq <- as.matrix(A %*% X)
-  laplace <- 3
-  freq <- Diagonal(x=1/(prior+2*laplace)) %*%  (freq+laplace)
-  #freq <- Diagonal(x=1/prior) %*%  freq
-  #freq[abs(freq) < 10*.Machine$double.eps] <- 1e-4
-  #freq[freq>=1-1e-4] <- 1-1e-4
+  A <- t(sapply(levels(y),function(i) y==i)) * 1
+  freq <- A %*% X
+  alpha <- 0.01
+  freq <- Diagonal(x=1/(prior)) %*%  (freq)
+  freq <- (1-2*alpha)*freq+alpha
+  freq <- as.matrix(freq)
   prior <- prior/sum(prior)
   result <- list(prior=prior,freq=freq,levels=levels(y))
-  class(result) <- c("naiveBayess_model",class(result))
+  class(result) <- c("naiveBayes_model",class(result))
   result
 }
-predict.naiveBayess_model <- function(model,X){
+predict.naiveBayes_model <- function(model,X){
   n <- nrow(X)
   logp1 <- t(log(model$freq))
   logp0 <- t(log(1-model$freq))

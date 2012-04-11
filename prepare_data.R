@@ -1,3 +1,4 @@
+## This takes 272.277s
 train_set <- read.csv("../data/training_set_rel3.csv.gz",stringsAsFactors=FALSE)
 train_set$essay_set <- factor(train_set$essay_set)
 valid_set <- read.csv("../data/valid_set.csv.gz",stringsAsFactors=FALSE)
@@ -9,11 +10,12 @@ Set=vector(mode="list",length=numberOfEssaySet)
 for( k in 1:numberOfEssaySet){
   Set[[k]]$corpus1 <- Corpus(VectorSource(with(train_set,essay[essay_set==k])))
   Set[[k]]$corpus2 <- Corpus(VectorSource(with(valid_set,essay[essay_set==k])))
+  Set[[k]]$feature1 <- extract.simpleFeatrure(Set[[k]]$corpus1)
+  Set[[k]]$feature2 <- extract.simpleFeatrure(Set[[k]]$corpus1)
 }
 for(k in c(1,3,4,5,6)){
   Set[[k]]$Y1 <- data.frame(rubric=with(train_set,domain1_score[essay_set==k]))
 }
-rm(k)
 
 Set[[2]]$Y1 <- with(train_set,data.frame(rubric1=domain1_score[essay_set==2],rubric2=domain2_score[essay_set==2]))
 ### sum of 4 traits are final score
@@ -38,6 +40,9 @@ Set[[8]]$Y1 <- with(train_set[train_set$essay_set==8,-3],
                          }))
 Set[[8]]$resolve_coef <- c(1,1,1,2)
 
+for( k in 1:numberOfEssaySet)
+  Set[[k]]$ny <- length(Set[[k]]$Y1)
+
 Set[[1]]$Yrange <- data.frame(rubric=c(2,12),row.names=c("min","max"))
 Set[[2]]$Yrange <- data.frame(rubric1=c(1,6),rubric2=c(1,4),row.names=c("min","max"))
 Set[[3]]$Yrange <- data.frame(rubric=c(0,3),row.names=c("min","max"))
@@ -51,6 +56,7 @@ Set[[8]]$Yrange <- as.data.frame(matrix(c(2,12),nrow=2,ncol=4),rownames<-c("min"
 colnames(Set[[8]]$Yrange) <- colnames(Set[[8]]$Y1)
 Set[[8]]$Yrange$Resolved <- c(10,60) #Description says 0-60
 
-source('data.R')
-lapply(1:numberOfEssaySet,splitAndSave.set)
-save.image(file="data/orig.Rdata")
+rm(k)
+
+# lapply(1:numberOfEssaySet,splitAndSave.set,method="sequentail")
+# save(list=ls.nofunction(),file="data/orig.Rdata")

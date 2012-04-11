@@ -128,9 +128,10 @@ predict.randomForest_model <- function(model,X){
   require(randomForest)
   factor2numeric(predict(model$model,X))
 }
-train.naiveBayes <- function(X,y,range){
+train.NBB <- function(X,y,range){
   y <- as.factor(y)
   prior <- table(y)
+  X <- (X>0)*1
   A <- t(sapply(levels(y),function(i) y==i)) * 1
   freq <- A %*% X
   alpha <- 0.01
@@ -139,10 +140,11 @@ train.naiveBayes <- function(X,y,range){
   freq <- as.matrix(freq)
   prior <- prior/sum(prior)
   result <- list(prior=prior,freq=freq,levels=levels(y))
-  class(result) <- c("naiveBayes_model",class(result))
+  class(result) <- c("NBB",class(result))
   result
 }
-predict.naiveBayes_model <- function(model,X){
+predict.NBB <- function(model,X){
+  X <- (X>0)*1
   n <- nrow(X)
   logp1 <- t(log(model$freq))
   logp0 <- t(log(1-model$freq))
@@ -150,7 +152,30 @@ predict.naiveBayes_model <- function(model,X){
   logprior <- log(model$prior)
   L <- L+(rep(1,n) %o% logprior)
   L <- as.matrix(L)
-  browser()
+
+  result <- apply(L,1,which.max)
+  result <- as.numeric(model$levels[result])
+}
+train.NBM <- function(X,y,range){
+  y <- as.factor(y)
+  prior <- table(y)
+  A <- t(sapply(levels(y),function(i) y==i)) * 1
+  laplace <- 1
+  freq <- A %*% X
+  freq <- Diagonal(x=1/(rowSums(freq)+laplace*ncol(X))) %*% (freq+laplace)
+  freq <- as.matrix(freq)
+  prior <- prior/sum(prior)
+  result <- list(prior=prior,freq=freq,levels=levels(y))
+  class(result) <- c("NBM",class(result))
+  result
+}
+predict.NBM <- function(model,X){
+  n <- nrow(X)
+  logp1 <- t(log(model$freq))
+  L <- X %*% logp1
+  logprior <- log(model$prior)
+  L <- L+(rep(1,n) %o% logprior)
+  L <- as.matrix(L)
 
   result <- apply(L,1,which.max)
   result <- as.numeric(model$levels[result])

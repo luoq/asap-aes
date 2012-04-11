@@ -19,6 +19,8 @@ which.kmax <- function(x,k){
 }
 factor2numeric <- function(F)
   as.numeric(levels(F)[F])
+order.rows <- function(X)
+  t(apply(X,1,order,decreasing=TRUE))
 barplot.compare <- function(a,b){
   tab <- table(a,b)
   barplot(tab,col=rainbow(5),legend=rownames(tab))

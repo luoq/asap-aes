@@ -1,4 +1,4 @@
-train <- function(...,method)
+itrain <- function(...,method)
   get(paste("train.",method,sep=""))(...)
 train.LM <- function(X,y,yrange){
   fit <- lm(y~.,data=cbind(y=y,as.data.frame(X)))
@@ -72,7 +72,7 @@ predict.SLDA <- function(model,X){
 train.RWeka <- function(fun){
   function(X,y,yrange){
     require(RWeka)
-    model <- get(fun)(y~.,data=cbind(y=as.factor(y),X))
+    model <- get(fun)(y~.,data=cbind(y=as.factor(y),as.data.frame(X)))
     result <- list(model=model)
     class(result) <- c(paste(fun,"_model",sep=""),class(result))
     result
@@ -169,14 +169,21 @@ train.NBM <- function(X,y,range){
   class(result) <- c("NBM",class(result))
   result
 }
-predict.NBM <- function(model,X){
+predict.NBM <- function(model,X,prob=FALSE){
   n <- nrow(X)
   logp1 <- t(log(model$freq))
   L <- X %*% logp1
   logprior <- log(model$prior)
   L <- L+(rep(1,n) %o% logprior)
-  L <- as.matrix(L)
-
-  result <- apply(L,1,which.max)
-  result <- as.numeric(model$levels[result])
+  m <- ncol(L)
+  L <- L-L[,m] %o% rep(1,m)
+  if(prob){
+    L <- exp(L)
+    L <- Diagonal(x=1/rowSums(L)) %*% L
+    unname(as.matrix(L))
+  }
+  else{
+    result <- apply(L,1,which.max)
+    result <- as.numeric(model$levels[result])
+  }
 }

@@ -11,7 +11,7 @@ for( k in 1:numberOfEssaySet){
   Set[[k]]$corpus1 <- Corpus(VectorSource(with(train_set,essay[essay_set==k])))
   Set[[k]]$corpus2 <- Corpus(VectorSource(with(valid_set,essay[essay_set==k])))
   Set[[k]]$feature1 <- extract.simpleFeatrure(Set[[k]]$corpus1)
-  Set[[k]]$feature2 <- extract.simpleFeatrure(Set[[k]]$corpus1)
+  Set[[k]]$feature2 <- extract.simpleFeatrure(Set[[k]]$corpus2)
 }
 for(k in c(1,3,4,5,6)){
   Set[[k]]$Y1 <- data.frame(rubric=with(train_set,domain1_score[essay_set==k]))
@@ -59,4 +59,4 @@ Set[[8]]$Yrange$Resolved <- c(10,60) #Description says 0-60
 rm(k)
 
 # lapply(1:numberOfEssaySet,splitAndSave.set,method="sequentail")
-# save(list=ls.nofunction(),file="data/orig.Rdata")
+# save(list=ls.nofunction(),file="data/orig.RDta")

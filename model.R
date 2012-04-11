@@ -91,6 +91,7 @@ predict.M5P_model <- predict.RWeka
 train.DecisionStump <- train.RWeka("DecisionStump")
 predict.DecisionStump_model <- predict.RWeka
 train.lasso <- function(X,y,yrange){
+  require(lars)
   fit <- lars(as.matrix(X),y)
   cv.fit <- cv.lars(as.matrix(X),y,K=5,plot.it=FALSE)
   s <- select.step(cv.fit$cv,cv.fit$cv.error)
@@ -101,6 +102,7 @@ train.lasso <- function(X,y,yrange){
   result
 }
 predict.lasso <- function(model,X){
+  require(lars)
   pred <- predict(model$fit,X,s=model$s,mode="fraction")$fit
   round.range(pred,model$yrange[1],model$yrange[2])
 }
@@ -175,9 +177,9 @@ predict.NBM <- function(model,X,prob=FALSE){
   L <- X %*% logp1
   logprior <- log(model$prior)
   L <- L+(rep(1,n) %o% logprior)
-  m <- ncol(L)
-  L <- L-L[,m] %o% rep(1,m)
   if(prob){
+    ## If an element is too large or too small,exp gives bad things
+    L <- t(apply(L,1,function(x) x-mean(x)))
     L <- exp(L)
     L <- Diagonal(x=1/rowSums(L)) %*% L
     unname(as.matrix(L))

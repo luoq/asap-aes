@@ -108,7 +108,7 @@ predict.lasso <- function(model,X){
 }
 train.SVM <- function(X,y,yrange){
   require(e1071)
-  model <- svm(X,as.factor(y),kernel="linear",cost=100)
+  model <- svm(X,as.factor(y))
   
   result <- list(model=model)
   class(result) <- c("SVM",class(result))
@@ -188,4 +188,19 @@ predict.NBM <- function(model,X,prob=FALSE){
     result <- apply(L,1,which.max)
     result <- as.numeric(model$levels[result])
   }
+}
+train.glmnet <- function(X,y,yrange){
+  require(glmnet)
+  cv.fit <- cv.glmnet(as.matrix(X),y)
+  fit <- glmnet(as.matrix(X),y)
+  plot(cv.fit)
+
+  result <- list(fit=fit,yrange=yrange,s=cv.fit$lambda.min)
+  class(result) <- c("glmnet_model",class(result))
+  result
+}
+predict.glmnet_model <- function(model,X){
+  require(glmnet)
+  pred <- predict(model$fit,as.matrix(X),s=model$s)
+  round.range(pred,model$yrange[1],model$yrange[2])
 }

@@ -7,15 +7,18 @@ NBMs <- lapply(1:ny,function(i){
   prob1 <- NULL
   prob2 <- NULL
   classifier <- NULL
+  term_mask <- (colSums(M1)>(nrow(M1)*0.005))
+  X1 <- M1[,term_mask]
+  X2 <- M2[,term_mask]
   for(k in uniqy[1:length(uniqy)-1]){
     y1 <- 1*(Y1[[i]]>k)
-    freq <- sum(y1)/N
-    if( (freq < 1/K*alpha) || (freq > 1-1/K*alpha))#skip class of too few elements
-      next
+    # freq <- sum(y1)/N
+    # if( (freq < 1/K*alpha) || (freq > 1-1/K*alpha))#skip class of too few elements
+    #   next
     label <- paste("NBM",as.character(k),sep="")
-    classifier[[label]] <- train.NBM(M1,y1,Yrange[[k]])
-    prob1[[label]] <- predict(classifier[[label]],M1,prob=TRUE)[,1]
-    prob2[[label]] <- predict(classifier[[label]],M2,prob=TRUE)[,1]
+    classifier[[label]] <- train.NBM(X1,y1,Yrange[[k]])
+    prob1[[label]] <- predict(classifier[[label]],X1,prob=TRUE)[,1]
+    prob2[[label]] <- predict(classifier[[label]],X2,prob=TRUE)[,1]
   }
   prob1 <- as.data.frame(prob1)
   prob2 <- as.data.frame(prob2)

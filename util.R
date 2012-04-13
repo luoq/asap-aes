@@ -67,3 +67,11 @@ as.dtm <- function(X){
   class(Y) <- c("DocumentTermMatrix", "simple_triplet_matrix")
   Y
 }
+first.true.index <- function(M)
+  apply(M,1,function(x){
+    n <- length(x)
+    for(i in 1:n)
+      if(x[i]>0.5)
+        return(i)
+    return(n+1)
+  })

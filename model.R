@@ -146,6 +146,7 @@ predict.randomForest_model <- function(model,X){
   factor2numeric(predict(model$model,X))
 }
 train.NBB <- function(X,y,range){
+  require(Matrix)
   y <- as.factor(y)
   prior <- table(y)
   X <- (X>0)*1
@@ -161,6 +162,7 @@ train.NBB <- function(X,y,range){
   result
 }
 predict.NBB <- function(model,X){
+  require(Matrix)
   X <- (X>0)*1
   n <- nrow(X)
   logp1 <- t(log(model$freq))
@@ -174,6 +176,7 @@ predict.NBB <- function(model,X){
   result <- as.numeric(model$levels[result])
 }
 train.NBM <- function(X,y,range){
+  require(Matrix)
   y <- as.factor(y)
   prior <- table(y)
   A <- t(sapply(levels(y),function(i) y==i)) * 1
@@ -187,6 +190,7 @@ train.NBM <- function(X,y,range){
   result
 }
 predict.NBM <- function(model,X,prob=FALSE){
+  require(Matrix)
   n <- nrow(X)
   logp1 <- t(log(model$freq))
   L <- X %*% logp1
@@ -246,3 +250,13 @@ train.LOGIT_S <- function(X,y,yrange){
   result
 }
 predict.LOGIT_S <- predict.LM_step_S
+train.LOGIT_I <- function(X,y,yrange){
+  cls <- sort(unique(y))
+  fit <- lapply(cls,function(C){
+    fit <- glm(y~.,data=cbind(y=I(y==C),X),family=binomial)
+  })
+  result <- list(cls=cls,fit=fit)
+  class(result) <- c("LOGIT_I",class(result))
+  result
+}
+predict.LOGIT_I <- predict.LM_step_I

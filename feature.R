@@ -47,18 +47,25 @@ get_dtm <- function(corpus,dictionary=NULL){
   preprocess_corpus <- function(corpus){
     ## :punct: = [!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]
     ## these punctuation may be between two words
-    corpus <- tm_map(corpus,function(txt) gsub("[!(),\\./:;?]"," ",txt))
+    ## corpus <- tm_map(corpus,function(txt) gsub("[!(),\\./:;?]"," ",txt))
     ## NOTE:termFreq tokenize before removePunctuation.
-    corpus <- tm_map(corpus,removePunctuation)
-    corpus <- tm_map(corpus,removeNumbers)
+    ## corpus <- tm_map(corpus,removePunctuation)
+    ## corpus <- tm_map(corpus,removeNumbers)
+    corpus
   }
+  require(RWeka)
   corpus <- preprocess_corpus(corpus)
+  default.ctrl <- list(
+                       tokenize=WordTokenizer,
+                       removePunctuation=TRUE,
+                       removeNumbers=TRUE,
+                       stemming=TRUE,
+                       stopwords=stopwords("en")
+                       )
   if(is.null(dictionary))
-    ctrl <- list(stemming=TRUE,
-                 bounds=list(global=c(4,Inf)))# about half the terms only belong to one document
+    ctrl <- c(default.ctrl,list(bounds=list(global=c(4,Inf))))# about half the terms only belong to one document
   else
-    ctrl <- list(stemming=TRUE,dictionary=dictionary)
-    
+    ctrl <- c(default.ctrl,list(dictionary=dictionary))
   dtm <- DocumentTermMatrix(corpus,control=ctrl)
 }
 idf <- function(M){

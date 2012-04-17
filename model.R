@@ -20,6 +20,22 @@ train.LM_step <- function(X,y,yrange){
   result
 }
 predict.LM_step <- predict.LM
+train.RLM <- function(X,y,yrange){
+  require(MASS)
+  fit <- rlm(y~.,data=cbind(y=y,as.data.frame(X)))
+  result <- list(fit=fit,yrange=yrange)
+  class(result) <- c("RLM",class(result))
+  result
+}
+predict.RLM <- predict.LM
+train.lmRob <- function(X,y,yrange){
+  require(robust)
+  fit <- lmRob(y~.,data=cbind(y=y,as.data.frame(X)))
+  result <- list(fit=fit,yrange=yrange)
+  class(result) <- c("lmRob_model",class(result))
+  result
+}
+predict.lmRob_model <- predict.LM
 train.LM2_step <- function(X,y,yrange){
   fit <- lm(y~.^2,data=cbind(y=y,X))
   require(MASS)
@@ -29,19 +45,18 @@ train.LM2_step <- function(X,y,yrange){
   result
 }
 predict.LM2_step <- predict.LM
-train.LM_indicator_step <- function(X,y,yrange){
+train.LM_step_I <- function(X,y,yrange){
+  require(MASS)
   cls <- sort(unique(y))
-  fit <- lapply(1:length(cls),function(C){
+  fit <- lapply(cls,function(C){
     fit <- lm(y~.,data=cbind(y=I(y==C),X))
-    require(MASS)
     fit <- stepAIC(fit,trace=0)
   })
   result <- list(cls=cls,fit=fit)
-  
-  class(result) <- c("LM_indicator_step",class(result))
+  class(result) <- c("LM_step_I",class(result))
   result
 }
-predict.LM_indicator_step <- function(model,X){
+predict.LM_step_I <- function(model,X){
   result <- sapply(model$fit,function(fit){
     predict(fit,X)})
   result <- apply(result,1,which.max)
@@ -203,4 +218,21 @@ predict.glmnet_model <- function(model,X){
   require(glmnet)
   pred <- predict(model$fit,as.matrix(X),s=model$s)
   round.range(pred,model$yrange[1],model$yrange[2])
+}
+train.LM_step_S <- function(X,y,yrange){
+  cls <- sort(unique(y))
+  fit <- lapply(cls[1:length(cls)-1],function(C){
+    fit <- lm(y~.,data=cbind(y=I(y<=C),X))
+    fit <- stepAIC(fit,trace=0)
+  })
+  result <- list(cls=cls,fit=fit)
+  class(result) <- c("LM_step_I",class(result))
+  result
+}
+predict.LM_step_I <- function(model,X){
+  result <- sapply(model$fit,function(fit){
+    predict(fit,X)})
+  result <- apply(result,1,function (x) which(x>0.5)[1])
+  result[is.na(result)] <- length(model$cls)
+  result <- model$cls[result]
 }

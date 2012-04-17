@@ -226,10 +226,10 @@ train.LM_step_S <- function(X,y,yrange){
     fit <- stepAIC(fit,trace=0)
   })
   result <- list(cls=cls,fit=fit)
-  class(result) <- c("LM_step_I",class(result))
+  class(result) <- c("LM_step_S",class(result))
   result
 }
-predict.LM_step_I <- function(model,X){
+predict.LM_step_S <- function(model,X){
   result <- sapply(model$fit,function(fit){
     predict(fit,X)})
   result <- apply(result,1,function (x) which(x>0.5)[1])

@@ -236,3 +236,13 @@ predict.LM_step_S <- function(model,X){
   result[is.na(result)] <- length(model$cls)
   result <- model$cls[result]
 }
+train.LOGIT_S <- function(X,y,yrange){
+  cls <- sort(unique(y))
+  fit <- lapply(cls[1:length(cls)-1],function(C){
+    fit <- glm(y~.,data=cbind(y=I(y<=C),X),family=binomial)
+  })
+  result <- list(cls=cls,fit=fit)
+  class(result) <- c("LOGIT_S",class(result))
+  result
+}
+predict.LOGIT_S <- predict.LM_step_S

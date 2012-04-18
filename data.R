@@ -40,7 +40,8 @@ next.set <- function(){
   else
     cat("No more sets\n")
 }
-write.submision <- function(result,name){
+write.submision <- function(result=Results[[length(Results)]],
+                            name=as.character(length(Results))){
   submission <- lapply(1:numberOfEssaySet,function(k){
     if(k!=2)
       id <- with(valid_set,domain1_predictionid[essay_set==k])

@@ -41,7 +41,6 @@ predict.main <- function(model,corpus,feature){
   M <- get_dtm(corpus,dictionary=model$terms)
   M <- as.Matrix(M)
 
-  result <- NULL
   result <- sapply(1:K,function(k){
     with(model$classifier[[k]],{
       NBM_prob <- NULL

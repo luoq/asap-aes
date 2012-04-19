@@ -28,6 +28,14 @@ train.RLM <- function(X,y,yrange){
   result
 }
 predict.RLM <- predict.LM
+train.LQS <- function(X,y,yrange){
+  require(MASS)
+  fit <- lqs(y~.,data=cbind(y=y,as.data.frame(X)))
+  result <- list(fit=fit,yrange=yrange)
+  class(result) <- c("RLM",class(result))
+  result
+}
+predict.LQS <- predict.LM
 train.lmRob <- function(X,y,yrange){
   require(robust)
   fit <- lmRob(y~.,data=cbind(y=y,as.data.frame(X)))
@@ -73,6 +81,13 @@ predict.LDA <- function(model,X){
   result <- predict(model$model,X)$class
   factor2numeric(result)
 }
+train.QDA <- function(X,y,yrange){
+  result <- qda(X,y)
+  result <- list(model=result)
+  class(result) <- c("QDA",class(result))
+  result
+}
+predict.QDA <- predict.LDA
 train.SLDA <- function(X,y,yrange){
   result <- slda(y~.,cbind(y=as.factor(y),as.data.frame(X)))
   

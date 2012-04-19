@@ -124,7 +124,7 @@ train.lasso <- function(X,y,yrange){
   require(lars)
   fit <- lars(as.matrix(X),y)
   cv.fit <- cv.lars(as.matrix(X),y,K=5,plot.it=FALSE)
-  s <- select.step(cv.fit$cv,cv.fit$cv.error)
+  s <- which.min(cv.fit$cv)
   s <- cv.fit$index[s]
   
   result <- list(fit=fit,yrange=yrange,s=s)

@@ -120,12 +120,27 @@ train.M5P <- train.RWeka("M5P")
 predict.M5P_model <- predict.RWeka
 train.DecisionStump <- train.RWeka("DecisionStump")
 predict.DecisionStump_model <- predict.RWeka
+cv.lasso <- function(X,y,yrange){
+  K <- 5
+  n <- nrow(X)
+  X <- as.matrix(X)
+  all.folds <- split(1:n,rep(1:K,length=n))
+  index <- seq(0,1,length=100)
+  kappa <- sapply(1:K,function(k){
+    omit <- all.folds[[k]]
+    fit <- lars(X[-omit,,drop=FALSE],y[-omit])
+    pred <- predict(fit,X[omit,,drop=FALSE],mode="fraction",s=index)$fit
+    pred <- round.range(pred,yrange[1],yrange[2])
+    kappa <- apply(pred,2,function(pred)
+                   ScoreQuadraticWeightedKappa(pred,y[omit],yrange[1],yrange[2]))
+  })
+  kappa <- apply(kappa,1,MeanQuadraticWeightedKappa)
+  index[which.max(kappa)]
+}
 train.lasso <- function(X,y,yrange){
   require(lars)
   fit <- lars(as.matrix(X),y)
-  cv.fit <- cv.lars(as.matrix(X),y,K=5,plot.it=FALSE)
-  s <- which.min(cv.fit$cv)
-  s <- cv.fit$index[s]
+  s <- cv.lasso(as.matrix(X),y,yrange)
   
   result <- list(fit=fit,yrange=yrange,s=s)
   class(result) <- c("lasso",class(result))

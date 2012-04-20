@@ -63,3 +63,5 @@ write.submision <- function(result=Results[[length(Results)]],
             ,file=paste("submission/",name,".csv",sep="")
             ,quote=FALSE,row.names=FALSE)
 }
+AES.kappa <- function(kappas)
+  MeanQuadraticWeightedKappa(kappas,c(1,0.5,0.5,1,1,1,1,1,1))

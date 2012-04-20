@@ -5,6 +5,6 @@ print(system.time(
 print(system.time(
                   Result <- lapply(1:numberOfEssaySet,function(k)
                                    with(Set[[k]],predict.main(Model[[k]],corpus2,feature2)))))
-Models <- append(Models,list(Model))
+#Models <- append(Models,list(Model))
 Results <- append(Results,list(Result))
 rm(Result,Model)

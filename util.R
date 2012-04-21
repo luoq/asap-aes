@@ -4,6 +4,15 @@ round.range <- function(x,min,max) {
   x[x<min] <- min
   return(x)
 }
+round.residual <- function(x){
+  mask <- x<0
+  x <- abs(x)
+  mask1 <- x<0.5
+  x[mask1] <- 0
+  x[!mask1] <- ceiling(x[!mask1]-0.5)
+  x[mask] <- -x[mask]
+  x
+}
 which.kmax <- function(x,k){
   if(k==1)
     return(which.max(x))

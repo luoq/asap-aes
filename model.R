@@ -290,3 +290,9 @@ train.LOGIT_I <- function(X,y,yrange){
   result
 }
 predict.LOGIT_I <- predict.LM_step_I
+predict.KNN <- function(X1,y1,X2){
+  Sim <- normalize(X2) %*% t(normalize(X1))
+  Ord <- order.rows(Sim)
+  Y <- matrix(y1[Ord],nrow=nrow(X2))
+  browser()
+}

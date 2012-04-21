@@ -12,6 +12,17 @@ for(k in 1:ny){
     XX1 <- cbind(X1,NBMs[[k]]$prob1)
     XX2 <- cbind(X2,NBMs[[k]]$prob2)
   }
+  if(USE_LSA){
+    mask <- Y1[[k]]==max(Y1[[k]])
+    if(sum(mask)<100)
+      mask <- order(Y1[[k]],decreasing=TRUE)[1:100]
+    space <- build_lsa(M1[mask,])
+    U1 <- fold_in_lsa(M1,space)
+    U2 <- fold_in_lsa(M2,space)
+    
+    XX1 <- cbind(XX1,U1)
+    XX2 <- cbind(XX2,U2)
+  }
   fit[[METHOD]][[k]]   <- itrain(XX1,Y1[[k]],Yrange[[k]],method=METHOD)
   pred1[[METHOD]][[k]] <- predict(fit[[METHOD]][[k]],XX1)
   pred2[[METHOD]][[k]] <- predict(fit[[METHOD]][[k]],XX2)

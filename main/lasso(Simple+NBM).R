@@ -45,6 +45,7 @@ train.main <- function(corpus,feature,Y,Yrange){
   M <- as.Matrix(M)
   result <- train.main1(feature,M,Y,Yrange)
   result$terms <- terms
+  result
 }
 predict.main1 <- function(model,feature,M){
   result <- sapply(model$classifier,function(model){

@@ -121,7 +121,7 @@ predict.M5P_model <- predict.RWeka
 train.DecisionStump <- train.RWeka("DecisionStump")
 predict.DecisionStump_model <- predict.RWeka
 cv.lasso <- function(X,y,yrange){
-  K <- 5
+  K <- 10
   n <- nrow(X)
   X <- as.matrix(X)
   all.folds <- split(1:n,rep(1:K,length=n))
@@ -206,11 +206,13 @@ predict.NBB <- function(model,X){
   result <- as.numeric(model$levels[result])
 }
 select.NBM.feature <- function(X,y,yrange){
-  K <- 5
+  ## require(CORElearn)
+  K <- 10
   n <- nrow(X)
-  all.folds <- split(1:n,rep(1:K,length=n))
+  all.folds <- kfold(n,K)
 
   w <- informationGainMultinomial(y,X)
+  ## w <- attrEval(y~.,data=cbind(y=y,as.data.frame(as.matrix(X))),estimator="InfGain")
   ord <- order(w,decreasing=TRUE)
   ns <- round(seq(1,length(w),length=100))
   
@@ -229,18 +231,17 @@ select.NBM.feature <- function(X,y,yrange){
     freq <- A %*% X
     freq <- as.matrix(freq)
     
-    kappa <- sapply(ns,function(k){
+    r <- sapply(ns,function(k){
       subset <- ord[1:k]
       freq <- freq[,subset,drop=FALSE]
-      X2 <- X2[,subset,drop=FALSE]
       
       freq <- Diagonal(x=1/(rowSums(freq)+laplace*ncol(X))) %*% (freq+laplace)
       freq <- as.matrix(freq)
-      model <- list(prior=prior,subset=1:ncol(freq),freq=freq,levels=levels(y))
+      model <- list(prior=prior,subset=subset,freq=freq,levels=levels(y))
       class(model) <- c("NBM",class(model))
 
       pred <- predict(model,X2)
-      #ScoreQuadraticWeightedKappa(pred,y2,yrange[1],yrange[2])
+      #ScoreQuadraticWeightedR(pred,y2,yrange[1],yrange[2])
       sum(pred==y2)/length(y2)
     })
   })
@@ -286,7 +287,7 @@ predict.NBM <- function(model,X,prob=FALSE){
   }
 }
 cv.lasso_glmnet <- function(X,y,yrange){
-  K <- 5
+  K <- 10
   n <- nrow(X)
   X <- as.matrix(X)
   all.folds <- split(1:n,rep(1:K,length=n))

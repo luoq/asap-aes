@@ -87,3 +87,7 @@ first.true.index <- function(M)
 add.laplace <- function(x,laplace,n=length(x)){
   (x+laplace)/(sum(x)+n*laplace)
 }
+kfold <- function(n,k){
+  ord <- order(runif(n))
+  split(ord,rep(1:k,length=n))
+}

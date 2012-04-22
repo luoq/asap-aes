@@ -59,7 +59,7 @@ get_dtm <- function(corpus,dictionary=NULL){
                        tokenize=WordTokenizer,
                        removePunctuation=TRUE,
                        removeNumbers=TRUE,
-                       stopwords=stopwords("en"),
+                       #stopwords=stopwords("en"),
                        stemming=TRUE
                        )
   if(is.null(dictionary))

@@ -59,8 +59,8 @@ get_dtm <- function(corpus,dictionary=NULL){
                        tokenize=WordTokenizer,
                        removePunctuation=TRUE,
                        removeNumbers=TRUE,
-                       stemming=TRUE,
-                       stopwords=stopwords("en")
+                       stopwords=stopwords("en"),
+                       stemming=TRUE
                        )
   if(is.null(dictionary))
     ctrl <- c(default.ctrl,list(bounds=list(global=c(4,Inf))))# about half the terms only belong to one document
@@ -114,4 +114,35 @@ build_lsa <- function(X,dim_calc=dim_share(0.8)){
 fold_in_lsa <- function(M,space){
   X <- (M %*% space$v) %*% Diagonal(x=1/space$d)
   as.matrix(X)
+}
+entropy <- function(P){
+  sum(sapply(P,function(x) -x*log(x)))
+}
+joint.entropy <- function(C,x){
+  x <- factor(x)
+  P <- prop.table(table(x))
+  H <- sapply(levels(x),function(i) entropy(prop.table(table(C[x==i]))))
+  H <- crossprod(P,H)
+}
+informationGain <- function(C,X){
+  H0 <- entropy(prop.table(table(C)))
+  m <- ncol(X)
+  H1 <- sapply(1:m,function(j) joint.entropy(C,X[,j]))
+  H <- H0-H1
+  names(H) <- colnames(X)
+  H
+}
+informationGainMultinomial <- function(C,X){
+  y <- as.factor(y)
+  prior <- table(y)
+  A <- t(sapply(levels(y),function(i) y==i)) * 1
+  laplace <- 1
+  freq <- A %*% X
+  freq <- as.matrix(freq)
+  browser()
+
+  H0 <- entropy(prop.table(table(rowSums(freq))))
+  P_cond <- (freq+laplace) %*% Diagonal(x=1/(colSums(freq)+nrow(freq)))
+  H1 <- apply(P_cond,2,entropy)
+  H <- H0-H1
 }

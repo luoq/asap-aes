@@ -212,6 +212,14 @@ train.NBM <- function(X,y,range){
   A <- t(sapply(levels(y),function(i) y==i)) * 1
   laplace <- 1
   freq <- A %*% X
+  freq <- as.matrix(freq)
+  browser()
+
+  H0 <- entropy(prop.table(table(rowSums(freq))))
+  P_cond <- (freq+laplace) %*% Diagonal(x=1/(colSums(freq)+nrow(freq)))
+  H1 <- apply(P_cond,2,entropy)
+  H <- H0-H1
+  
   freq <- Diagonal(x=1/(rowSums(freq)+laplace*ncol(X))) %*% (freq+laplace)
   freq <- as.matrix(freq)
   prior <- prior/sum(prior)
@@ -238,13 +246,30 @@ predict.NBM <- function(model,X,prob=FALSE){
     result <- as.numeric(model$levels[result])
   }
 }
+cv.lasso_glmnet <- function(X,y,yrange){
+  K <- 5
+  n <- nrow(X)
+  X <- as.matrix(X)
+  all.folds <- split(1:n,rep(1:K,length=n))
+  index <- seq(0,1,length=100)
+  kappa <- sapply(1:K,function(k){
+    omit <- all.folds[[k]]
+    fit <- glmnet(X[-omit,,drop=FALSE],y[-omit])
+    pred <- predict(fit,X[omit,,drop=FALSE],s=index)
+    pred <- round.range(pred,yrange[1],yrange[2])
+    kappa <- apply(pred,2,function(pred)
+                   ScoreQuadraticWeightedKappa(pred,y[omit],yrange[1],yrange[2]))
+  })
+  kappa <- apply(kappa,1,MeanQuadraticWeightedKappa)
+  index[which.max(kappa)]
+}
 train.glmnet <- function(X,y,yrange){
   require(glmnet)
-  cv.fit <- cv.glmnet(as.matrix(X),y)
-  fit <- glmnet(as.matrix(X),y)
-  plot(cv.fit)
+  X <- as.matrix(X)
+  s <- cv.lasso_glmnet(X,y,yrange)
+  fit <- glmnet(X,y)
 
-  result <- list(fit=fit,yrange=yrange,s=cv.fit$lambda.min)
+  result <- list(fit=fit,yrange=yrange,s=s)
   class(result) <- c("glmnet_model",class(result))
   result
 }

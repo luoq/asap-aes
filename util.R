@@ -91,3 +91,15 @@ kfold <- function(n,k){
   ord <- order(runif(n))
   split(ord,rep(1:k,length=n))
 }
+square.split <- function(n,k){
+  a <- (1:k)^2
+  a <- a/a[length(a)]
+  x <- ceiling(n*a)
+  i <- 1
+  ## The leading sequence may keep constant.check it
+  while(x[i]==x[i+1]){
+    x[i+1] <- x[i+1]+1
+    i <- i+1
+  }
+  x
+}

@@ -214,7 +214,7 @@ select.NBM.feature <- function(X,y,yrange){
   w <- informationGainMultinomial(y,X)
   ## w <- attrEval(y~.,data=cbind(y=y,as.data.frame(as.matrix(X))),estimator="InfGain")
   ord <- order(w,decreasing=TRUE)
-  ns <- round(seq(1,length(w),length=100))
+  ns <- square.split(length(w),30)
   
   kappa <- sapply(1:K,function(k){
     omit <- all.folds[[k]]

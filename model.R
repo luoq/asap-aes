@@ -72,7 +72,7 @@ predict.LM_step_I <- function(model,X){
 }
 train.LDA <- function(X,y,yrange){
   result <- lda(X,y)
-  
+
   result <- list(model=result)
   class(result) <- c("LDA",class(result))
   result
@@ -90,7 +90,7 @@ train.QDA <- function(X,y,yrange){
 predict.QDA <- predict.LDA
 train.SLDA <- function(X,y,yrange){
   result <- slda(y~.,cbind(y=as.factor(y),as.data.frame(X)))
-  
+
   result <- list(model=result)
   class(result) <- c("SLDA",class(result))
   result
@@ -141,7 +141,7 @@ train.lasso <- function(X,y,yrange){
   require(lars)
   fit <- lars(as.matrix(X),y)
   s <- cv.lasso(as.matrix(X),y,yrange)
-  
+
   result <- list(fit=fit,yrange=yrange,s=s)
   class(result) <- c("lasso",class(result))
   result
@@ -154,7 +154,7 @@ predict.lasso <- function(model,X){
 train.SVM <- function(X,y,yrange){
   require(e1071)
   model <- svm(X,as.factor(y))
-  
+
   result <- list(model=model)
   class(result) <- c("SVM",class(result))
   result
@@ -205,37 +205,75 @@ predict.NBB <- function(model,X){
   result <- apply(L,1,which.max)
   result <- as.numeric(model$levels[result])
 }
-train.NBM <- function(X,y,range){
+select.NBM.feature <- function(X,y,yrange){
+  K <- 5
+  n <- nrow(X)
+  all.folds <- split(1:n,rep(1:K,length=n))
+
+  w <- informationGainMultinomial(y,X)
+  ord <- order(w,decreasing=TRUE)
+  ns <- round(seq(1,length(w),length=100))
+  
+  kappa <- sapply(1:K,function(k){
+    omit <- all.folds[[k]]
+    X2 <- X[omit,,drop=FALSE]
+    y2 <- y[omit]
+    X <- X[-omit,,drop=FALSE]
+    y <- y[-omit]
+    
+    y <- as.factor(y)
+    prior <- table(y)
+    prior <- prior/sum(prior)
+    A <- t(sapply(levels(y),function(i) y==i)) * 1
+    laplace <- 1e-4
+    freq <- A %*% X
+    freq <- as.matrix(freq)
+    
+    kappa <- sapply(ns,function(k){
+      subset <- ord[1:k]
+      freq <- freq[,subset,drop=FALSE]
+      X2 <- X2[,subset,drop=FALSE]
+      
+      freq <- Diagonal(x=1/(rowSums(freq)+laplace*ncol(X))) %*% (freq+laplace)
+      freq <- as.matrix(freq)
+      model <- list(prior=prior,subset=1:ncol(freq),freq=freq,levels=levels(y))
+      class(model) <- c("NBM",class(model))
+
+      pred <- predict(model,X2)
+      ScoreQuadraticWeightedKappa(pred,y2,yrange[1],yrange[2])
+    })
+  })
+  kappa <- apply(kappa,1,MeanQuadraticWeightedKappa)
+  ord[1:ns[which.max(kappa)]]
+}
+train.NBM <- function(X,y,yrange){
   require(Matrix)
+  subset <- select.NBM.feature(X,y,yrange)
+  X <- X[,subset,drop=FALSE]
+    
   y <- as.factor(y)
   prior <- table(y)
   A <- t(sapply(levels(y),function(i) y==i)) * 1
-  laplace <- 1
+  laplace <- 1e-4
   freq <- A %*% X
   freq <- as.matrix(freq)
-  browser()
-
-  H0 <- entropy(prop.table(table(rowSums(freq))))
-  P_cond <- (freq+laplace) %*% Diagonal(x=1/(colSums(freq)+nrow(freq)))
-  H1 <- apply(P_cond,2,entropy)
-  H <- H0-H1
-  
   freq <- Diagonal(x=1/(rowSums(freq)+laplace*ncol(X))) %*% (freq+laplace)
   freq <- as.matrix(freq)
   prior <- prior/sum(prior)
-  result <- list(prior=prior,freq=freq,levels=levels(y))
+  result <- list(prior=prior,subset=subset,freq=freq,levels=levels(y))
   class(result) <- c("NBM",class(result))
   result
 }
 predict.NBM <- function(model,X,prob=FALSE){
   require(Matrix)
+  X <- X[,model$subset,drop=FALSE]
   n <- nrow(X)
   logp1 <- t(log(model$freq))
   L <- X %*% logp1
   logprior <- log(model$prior)
   L <- L+(rep(1,n) %o% logprior)
   if(prob){
-    ## If an element is too large or too small,exp gives bad things
+    ## If an element is too large or too small,exp gives bad result
     L <- t(apply(L,1,function(x) x-mean(x)))
     L <- exp(L)
     L <- Diagonal(x=1/rowSums(L)) %*% L

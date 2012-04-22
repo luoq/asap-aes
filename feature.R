@@ -150,16 +150,18 @@ informationGain2 <- function(y,X,laplace=1e-4){#X is binary
   H0-H1
 }
 informationGainMultinomial <- function(y,X){
+  laplace <- 1e-4
   y <- as.factor(y)
-  prior <- table(y)
   A <- t(sapply(levels(y),function(i) y==i)) * 1
-  laplace <- 1
   freq <- A %*% X
   freq <- as.matrix(freq)
-  browser()
+  ny <- rowSums(freq)
+  N <- sum(ny)
 
-  H0 <- entropy(prop.table(table(rowSums(freq))))
-  P_cond <- (freq+laplace) %*% Diagonal(x=1/(colSums(freq)+nrow(freq)))
-  H1 <- apply(P_cond,2,entropy)
-  H <- H0-H1
+  H0 <- entropy(prop.table(ny))
+  H1 <- apply(freq,2,function(x){
+    sum(x)/N*entropy(add.laplace(x,laplace))+
+      (1-sum(x)/N)*entropy(add.laplace(ny-x,laplace))
+  })
+  H0-H1
 }

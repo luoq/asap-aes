@@ -32,26 +32,31 @@ predict.main2 <- function(model,feature,M){
   pred <- predict(model$lm.fit,cbind(feature,NBM))
   unname(pred)
 }
-train.main <- function(corpus,feature,Y,Yrange){
-  M <- get_dtm(corpus)
-  terms <- Terms(M)
-  M <- as.Matrix(M)
+train.main1 <- function(feature,M,Y,Yrange){
   ny <- ncol(Y)
   classifier <- lapply(1:ny,function(i){
     train.main2(feature,M,Y[[i]],Yrange[[i]])
   })
-  return(list(colnames=colnames(Y),terms=terms,classifier=classifier))
+  return(list(colnames=colnames(Y),classifier=classifier))
 }
-
-predict.main <- function(model,corpus,feature){
-  K <- length(model$classifier)
-  M <- get_dtm(corpus,dictionary=model$terms)
+train.main <- function(corpus,feature,Y,Yrange){
+  M <- get_dtm(corpus)
+  terms <- Terms(M)
   M <- as.Matrix(M)
-
+  result <- train.main1(feature,M,Y,Yrange)
+  result$terms <- terms
+}
+predict.main1 <- function(model,feature,M){
   result <- sapply(model$classifier,function(model){
     predict.main2(model,feature,M)
   })
   result <- as.data.frame(result)
   colnames(result) <- model$colnames
   result
+}
+predict.main <- function(model,corpus,feature){
+  K <- length(model$classifier)
+  M <- get_dtm(corpus,dictionary=model$terms)
+  M <- as.Matrix(M)
+  predict.main1(model,feature,M)
 }

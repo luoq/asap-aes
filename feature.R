@@ -119,9 +119,11 @@ entropy <- function(P){
   sum(sapply(P,function(x) -x*log(x)))
 }
 joint.entropy <- function(C,x){
+  laplace <- 1e-4
+  C <- factor(C)#ensure C[x==i] has same levels as C
   x <- factor(x)
   P <- prop.table(table(x))
-  H <- sapply(levels(x),function(i) entropy(prop.table(table(C[x==i]))))
+  H <- sapply(levels(x),function(i) entropy(add.laplace(table(C[x==i]),laplace)))
   H <- crossprod(P,H)
 }
 informationGain <- function(C,X){
@@ -132,7 +134,22 @@ informationGain <- function(C,X){
   names(H) <- colnames(X)
   H
 }
-informationGainMultinomial <- function(C,X){
+informationGain2 <- function(y,X,laplace=1e-4){#X is binary
+  X <- X!=0
+  N <- length(y)
+  y <- as.factor(y)
+  ny <- table(y)
+  H0 <- entropy(prop.table(ny))
+  A <- t(sapply(levels(y),function(i) y==i)) * 1
+  freq <- A %*% X
+  freq <- as.matrix(freq)
+  H1 <- apply(freq,2,function(x){
+    sum(x)/N*entropy(add.laplace(x,laplace))+
+      (1-sum(x)/N)*entropy(add.laplace(ny-x,laplace))
+  })
+  H0-H1
+}
+informationGainMultinomial <- function(y,X){
   y <- as.factor(y)
   prior <- table(y)
   A <- t(sapply(levels(y),function(i) y==i)) * 1

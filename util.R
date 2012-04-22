@@ -84,3 +84,6 @@ first.true.index <- function(M)
         return(i)
     return(n+1)
   })
+add.laplace <- function(x,laplace,n=length(x)){
+  (x+laplace)/(sum(x)+n*laplace)
+}

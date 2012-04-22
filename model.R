@@ -240,10 +240,11 @@ select.NBM.feature <- function(X,y,yrange){
       class(model) <- c("NBM",class(model))
 
       pred <- predict(model,X2)
-      ScoreQuadraticWeightedKappa(pred,y2,yrange[1],yrange[2])
+      #ScoreQuadraticWeightedKappa(pred,y2,yrange[1],yrange[2])
+      sum(pred==y2)/length(y2)
     })
   })
-  kappa <- apply(kappa,1,MeanQuadraticWeightedKappa)
+  kappa <- apply(kappa,1,mean)
   ord[1:ns[which.max(kappa)]]
 }
 train.NBM <- function(X,y,yrange){

@@ -3,6 +3,7 @@ new_set$essay_set <- factor(new_set$essay_set)
 numberOfEssaySet <- 8
 
 New=vector(mode="list",length=numberOfEssaySet)
+require(tm)
 for( k in 1:numberOfEssaySet){
   New[[k]]$corpus <- Corpus(VectorSource(with(new_set,essay[essay_set==k])))
   New[[k]]$feature <- extract.simpleFeatrure(New[[k]]$corpus)

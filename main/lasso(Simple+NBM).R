@@ -16,20 +16,48 @@ train.main2 <- function(feature,M,y,yrange){
     result <- sapply(classifier,function(A) predict(A,M,prob=TRUE)[,2])
     result <- as.data.frame(result)
   }
+  evaluate <- function(feature,NBM,y,yrange){
+    K <- 5
+    n <- nrow(feature)
+    all.folds <- split(1:n,rep(1:K,length=n))
+    kappa <- sapply(all.folds,function(omit){
+      fit1 <- train.lasso(feature[-omit,,drop=FALSE],y[-omit],yrange)
+      pred1 <- predict(fit1,feature[omit,,drop=FALSE])
+      kappa1 <- ScoreQuadraticWeightedKappa(pred1,y[omit],yrange[1],yrange[2])
+      fit2 <- train.lasso(cbind(feature[-omit,,drop=FALSE],NBM[-omit,,drop=FALSE]),y[-omit],yrange)
+      pred2 <- predict(fit2,cbind(feature[omit,,drop=FALSE],NBM[omit,,drop=FALSE]))
+      kappa2 <- ScoreQuadraticWeightedKappa(pred2,y[omit],yrange[1],yrange[2])
+      list(kappa1=kappa1,kappa2=kappa2)
+    })
+    kappa <- apply(kappa,1,MeanQuadraticWeightedKappa)
+    USE_NBM <- kappa[2]>kappa[1]
+  }
   n <- length(y)
   trainI <- sort(sample(n,round(n*0.5)))
   classifier <- get_NBM_classifier(M[trainI,],y[trainI])
   NBM <- get_NBM_prob(classifier,M[-trainI,])
-  fit <- train.lasso(cbind(feature[-trainI,],NBM),y[-trainI],yrange)
-  return(list(NBM_classifier=classifier,lm.fit=fit))
+  USE_NBM <- evaluate(feature[-trainI,],NBM,y[-trainI],yrange)
+  if(USE_NBM){
+    fit <- train.lasso(cbind(feature[-trainI,],NBM),y[-trainI],yrange)
+    return(list(NBM_classifier=classifier,lm.fit=fit))
+  }
+  else{
+    fit <- train.lasso(feature,y,yrange)
+    return(list(NBM_classifier=NULL,lm.fit=fit))
+  }
 }
 predict.main2 <- function(model,feature,M){
   get_NBM_prob <- function(classifier,M){
     result <- sapply(classifier,function(A) predict(A,M,prob=TRUE)[,2])
     result <- as.data.frame(result)
   }
-  NBM <- get_NBM_prob(model$NBM_classifier,M)
-  pred <- predict(model$lm.fit,cbind(feature,NBM))
+  if(is.null(model$NBM_classifier)){
+    pred <- predict(model$lm.fit,feature)
+  }
+  else{
+    NBM <- get_NBM_prob(model$NBM_classifier,M)
+    pred <- predict(model$lm.fit,cbind(feature,NBM))
+  }
   unname(pred)
 }
 train.main1 <- function(feature,M,Y,Yrange){

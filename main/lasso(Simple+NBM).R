@@ -30,7 +30,8 @@ train.main2 <- function(feature,M,y,yrange){
       list(kappa1=kappa1,kappa2=kappa2)
     })
     kappa <- apply(kappa,1,MeanQuadraticWeightedKappa)
-    USE_NBM <- kappa[2]>kappa[1]
+    print(kappa)
+    USE_NBM <- kappa[2]-kappa[1]>0.01
   }
   n <- length(y)
   trainI <- sort(sample(n,round(n*0.5)))

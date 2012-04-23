@@ -1,0 +1,6 @@
+1.	How to predict on new data ?
+	
+	a. Put gzipped csv file named input.csv.gz in newdata/ .
+	   The format should be the same as validation set.
+	b. Start R in this directory.Run source('predict_new.R')
+	d. the output is newdata/ouput.csv

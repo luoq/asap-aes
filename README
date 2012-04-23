@@ -4,3 +4,14 @@
 	   The format should be the same as validation set.
 	b. Start R in this directory.Run source('predict_new.R')
 	d. the output is newdata/ouput.csv
+2.	Environment
+	a. System 
+		Linux lq-laptop 3.2.12-gentoo #1 SMP Tue Mar 27 21:09:25 CST 2012 x86_64 Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz GenuineIntel GNU/Linux
+	b. R verison
+		2.15.0
+	c. R packages
+		"lars"      "Matrix"    "lattice"   "RWeka"     "openNLP"   "Aspell"   "tm"        
+3.	Time of prediction
+	Time of predicting  on validation set:
+		a. simple feature extraction : 39.68933s
+		b. prediction : 52.90542 s

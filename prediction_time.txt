@@ -1,0 +1,3 @@
+Time of predicting on valid set
+feature extraction: 42.01712s
+prediction: 57.46061s

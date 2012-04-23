@@ -4,18 +4,23 @@ numberOfEssaySet <- 8
 
 New=vector(mode="list",length=numberOfEssaySet)
 require(tm)
+
+t0 <- Sys.time()
 for( k in 1:numberOfEssaySet){
   New[[k]]$corpus <- Corpus(VectorSource(with(new_set,essay[essay_set==k])))
   New[[k]]$feature <- extract.simpleFeatrure(New[[k]]$corpus)
 }
 New[[7]]$resolve_coef <- rep(1,4)
 New[[8]]$resolve_coef <- c(1,1,1,2)
+time.feature_extraction <- as.double( difftime(Sys.time(), t0, u = 'secs'))
 
 load('model/model.RData')
 
 source('model/lasso(Simple+NBM).R')
+t0 <- Sys.time()
 Result <- lapply(1:numberOfEssaySet,function(k)
                  with(New[[k]],predict.main(Model[[k]],corpus,feature)))
+time.prediction <- as.double( difftime(Sys.time(), t0, u = 'secs'))
 
 write.newsubmision <- function(result,path){
   submission <- lapply(1:numberOfEssaySet,function(k){
@@ -39,3 +44,6 @@ write.newsubmision <- function(result,path){
 }
 
 write.newsubmision(Result,"newdata/output.csv")
+
+cat("time of feature extraction is : ",time.feature_extraction," s\n")
+cat("time of prediction on new data is : ",time.prediction," s\n")

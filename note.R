@@ -26,3 +26,6 @@ CHS <- with(CHS, bmi = weight/heightˆ2)
 x <- data.frame(x=1:10)
 x[1:5,]
 x[1:5,,drop=FALSE]
+## Timer
+t0 <- Sys.time()
+seconds <- as.double( difftime(Sys.time(), t0, u = 'secs'))
